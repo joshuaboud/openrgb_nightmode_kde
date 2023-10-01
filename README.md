@@ -30,3 +30,13 @@ If installed system-wide for all users:
 ```bash
 sudo ./uninstall.sh
 ```
+
+## Known issues
+1. Original LED colors are only loaded at the beginning of the script. To change default daytime colors, stop the service first with
+   ```bash
+   systemctl --user stop openrgb_nightmode_kde.service
+   ```
+   Then make your changes to LED colors, and finally restart with
+   ```bash
+   systemctl --user start openrgb_nightmode_kde.service
+   ```
