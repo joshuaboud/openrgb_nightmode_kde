@@ -8,8 +8,6 @@ from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 from typing import List, Tuple, Dict
 
-COLOR_GRANULARITY = 1
-
 RGB = OpenRGBClient(protocol_version=3)
 
 class DeviceWrapper:
