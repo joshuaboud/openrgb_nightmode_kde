@@ -7,8 +7,8 @@ from openrgb.utils import RGBColor
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 from typing import List, Tuple, Dict
-
-RGB = OpenRGBClient(protocol_version=3)
+import signal
+import sys
 
 class DeviceWrapper:
   def __init__(self, device: Device):
@@ -22,7 +22,7 @@ class DeviceWrapper:
   def reset(self) -> None:
     self.device.set_colors(self.colors_orig)
 
-DEVICES: List[DeviceWrapper] = [DeviceWrapper(device) for device in RGB.devices]
+DEVICES: List[DeviceWrapper] = None
 
 KELVIN_TABLE: Dict[int, Tuple[int,int,int]] = {
   1000: (255,56,0),
@@ -81,16 +81,31 @@ def on_properties_changed(sender: str, properties: dbus.Dictionary, args: dbus.A
     set_color_temp(DEVICES, int(properties['currentTemperature']))
 
 
-DBusGMainLoop(set_as_default=True)
+def siginthandler(signum, frame):
+  print(f'Exiting ({signal.Signals(signum).name}), resetting device colors...')
+  for device in DEVICES:
+    device.reset()
+  print('Done. Exiting.')
+  sys.exit(0)
+
 
 def main():
+  DBusGMainLoop(set_as_default=True)
+
+  global DEVICES
+  rgb = OpenRGBClient(protocol_version=3)
+  DEVICES = [DeviceWrapper(device) for device in rgb.devices]
+
+  signal.signal(signal.SIGINT, siginthandler)
+
   bus = dbus.SessionBus()
   color_correct_proxy = bus.get_object('org.kde.KWin', '/ColorCorrect')
   color_correct_iface = dbus.Interface(color_correct_proxy, 'org.freedesktop.DBus.Properties')
-  color_correct_iface.connect_to_signal('PropertiesChanged', on_properties_changed)
 
   color_temp = color_correct_iface.Get('org.kde.kwin.ColorCorrect', 'currentTemperature')
   set_color_temp(DEVICES, color_temp)
+
+  color_correct_iface.connect_to_signal('PropertiesChanged', on_properties_changed)
 
   loop = GLib.MainLoop()
   loop.run()
