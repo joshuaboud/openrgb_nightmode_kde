@@ -97,6 +97,7 @@ def main():
   DEVICES = [DeviceWrapper(device) for device in rgb.devices]
 
   signal.signal(signal.SIGINT, siginthandler)
+  signal.signal(signal.SIGTERM, siginthandler)
 
   bus = dbus.SessionBus()
   color_correct_proxy = bus.get_object('org.kde.KWin', '/ColorCorrect')
