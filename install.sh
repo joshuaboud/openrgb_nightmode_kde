@@ -55,7 +55,7 @@ cat <<EOF > "$DESTDIR/$SYSTEMD_UNIT_DIR/openrgb_nightmode_kde.service"
 Description=Follow KDE nightcolor color temperature with OpenRGB
 
 [Service]
-ExecStart="$DESTDIR/$BIN_DIR/openrgb_nightmode_kde.py"
+ExecStart=/usr/bin/python -u $BIN_DIR/openrgb_nightmode_kde.py
 Restart=on-failure
 RestartSec=10
 
