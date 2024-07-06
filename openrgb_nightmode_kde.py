@@ -2,7 +2,7 @@
 
 import dbus
 from openrgb import OpenRGBClient
-from openrgb.orgb import Device, LED
+from openrgb.orgb import Device
 from openrgb.utils import RGBColor
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
@@ -100,10 +100,10 @@ def main():
   signal.signal(signal.SIGTERM, siginthandler)
 
   bus = dbus.SessionBus()
-  color_correct_proxy = bus.get_object('org.kde.KWin', '/ColorCorrect')
+  color_correct_proxy = bus.get_object('org.kde.KWin.NightLight', '/org/kde/KWin/NightLight')
   color_correct_iface = dbus.Interface(color_correct_proxy, 'org.freedesktop.DBus.Properties')
 
-  color_temp = color_correct_iface.Get('org.kde.kwin.ColorCorrect', 'currentTemperature')
+  color_temp = color_correct_iface.Get('org.kde.KWin.NightLight', 'currentTemperature')
   set_color_temp(DEVICES, color_temp)
 
   color_correct_iface.connect_to_signal('PropertiesChanged', on_properties_changed)
